@@ -12,3 +12,4 @@ This repository will also contain a RCNN (Recurrent Convolutional Neural Network
     * ScalarPlane: A 2D matrix (field) of scalars; Is the 2D analog of the ScalarField
     * VectorPlane: A 2D matrix (field) of vectors; Is the Vector analog of the ScalarPlane
 * main.cpp: The main C++ file containing the fluid simulation code
+* main.py: Will contain the RCNN upon completion
