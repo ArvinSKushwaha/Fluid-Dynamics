@@ -1,8 +1,8 @@
 #include <iostream>
-#include "math_obj.hpp"
+#include "math_obj_f.hpp"
 
-#define X_RES 1000
-#define Y_RES 1000
+#define X_RES 300
+#define Y_RES 300
 #define RES_SIZE Vec2D(X_RES, Y_RES)
 #define ENV_SIZE Vec2D(1, 1)
 
@@ -19,6 +19,7 @@ Vec2D getPosition(int i, int j)
 int main()
 {
     double t = 0;
+    int iterations = 0;
     VectorPlane<X_RES, Y_RES> velocity;
     VectorPlane<X_RES, Y_RES> externalAcceleration;
     ScalarPlane<X_RES, Y_RES> pressure;
@@ -51,5 +52,7 @@ int main()
             )
         ) * dt;
         t += dt;
-    } while (t <= 1.0);
+        iterations++;
+        velocity.toFile("output/"+std::to_string(iterations) + "output");
+    } while (iterations < 1000);
 }

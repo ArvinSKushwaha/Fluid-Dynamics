@@ -11,5 +11,6 @@ This repository will also contain a RCNN (Recurrent Convolutional Neural Network
     * VectorField: The Vector analog of the ScalarField. Represents a discretized representation of a vector field function.
     * ScalarPlane: A 2D matrix (field) of scalars; Is the 2D analog of the ScalarField
     * VectorPlane: A 2D matrix (field) of vectors; Is the Vector analog of the ScalarPlane
+* math_obj_f.hpp: Same as math_obj.hpp except using floats instead of doubles.
 * main.cpp: The main C++ file containing the fluid simulation code
 * main.py: Will contain the RCNN upon completion
