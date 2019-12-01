@@ -1,58 +1,69 @@
 #include <iostream>
 #include "math_obj_f.hpp"
 
-#define X_RES 300
-#define Y_RES 300
-#define RES_SIZE Vec2D(X_RES, Y_RES)
-#define ENV_SIZE Vec2D(1, 1)
+#define X_RES 100
+#define Y_RES 100
+#define Z_RES 100
+#define RES_SIZE Vec3D(X_RES, Y_RES, Z_RES)
+#define ENV_SIZE Vec3D(1, 1, 1)
 
 #define dt 1e-3    //timestep
 #define mu 18.5e-6 //viscosity of air
 
-Vec2D spacing = ENV_SIZE / RES_SIZE;
+Vec3D spacing = ENV_SIZE / RES_SIZE;
 
-Vec2D getPosition(int i, int j)
+Vec3D getPosition(int i, int j, int k)
 {
-    return spacing * Vec2D(i, j) + spacing / 2.0;
+    return spacing * Vec3D(i, j, k) + spacing / 2.0;
 }
 
 int main()
 {
+    std::cout << "VectorField<" << X_RES << ", " << Y_RES << ", " << Z_RES << ">: " << sizeof(VectorField<X_RES, Y_RES, Z_RES>) << " bytes" << std::endl;
+    std::cout << "ScalarField<" << X_RES << ", " << Y_RES << ", " << Z_RES << ">: " << sizeof(ScalarField<X_RES, Y_RES, Z_RES>) << " bytes" << std::endl;
+    std::cout << "Vec3D: " << sizeof(Vec3D) << " bytes" << std::endl;
+    std::cout << "Vec2D: " << sizeof(Vec2D) << " bytes" << std::endl;
+    std::cout << "double: " << sizeof(double) << " bytes" << std::endl;
+    std::cout << "float: " << sizeof(float) << " bytes" << std::endl;
+    std::cout << "uint: " << sizeof(uint) << " bytes" << std::endl;
+    std::cout << "int: " << sizeof(int) << " bytes" << std::endl;
     double t = 0;
-    int iterations = 0;
-    VectorPlane<X_RES, Y_RES> velocity;
-    VectorPlane<X_RES, Y_RES> externalAcceleration;
-    ScalarPlane<X_RES, Y_RES> pressure;
-    ScalarPlane<X_RES, Y_RES> massDensity;
+    VectorField<X_RES, Y_RES, Z_RES> velocity;
+    VectorField<X_RES, Y_RES, Z_RES> externalAcceleration;
+    ScalarField<X_RES, Y_RES, Z_RES> pressure;
+    ScalarField<X_RES, Y_RES, Z_RES> massDensity;
     for (int i = 0; i < X_RES; ++i)
     {
         for (int j = 0; j < Y_RES; ++j)
         {
-            velocity(i, j, Vec2D(0, 0));
-            externalAcceleration(i, j, Vec2D(0, 0));
-            massDensity(i, j, 1);
-            pressure(i, j, getPosition(i, j).normSq());
+            for(int k = 0; k < Z_RES; ++k)
+            {
+                velocity(i, j, k, Vec3D(0, 0, 0));
+                externalAcceleration(i, j, k, Vec3D(0, 0, 0));
+                massDensity(i, j, k, 1);
+                pressure(i, j, k, getPosition(i, j, k).normSq());
+            }
         }
     }
-
-    do
+    
+    for(int iterations = 0; iterations < 1000; iterations++)
     {
-        std::cout << t << std::endl;
-        velocity << velocity + ((
-                (VectorPlane<X_RES, Y_RES>(pressure.gradient(spacing)) * -1) +
+        std::cout << iterations << std::endl;
+        velocity += ((
+                (VectorField<X_RES, Y_RES, Z_RES>(pressure.gradient(spacing)) * -1) +
                 (velocity.laplacian(spacing) * mu) +
-                (VectorPlane<X_RES, Y_RES>(velocity.divergence(spacing).gradient(spacing)) * (mu / 3.0)) +
+                (VectorField<X_RES, Y_RES, Z_RES>(velocity.divergence(spacing).gradient(spacing)) * (mu / 3.0)) +
                 (externalAcceleration * massDensity)
             ) * (massDensity^-1) +
             (
-                VectorPlane<X_RES, Y_RES>(
-                    velocity * VectorPlane<X_RES, Y_RES>(velocity.getX().gradient(spacing)),
-                    velocity * VectorPlane<X_RES, Y_RES>(velocity.getY().gradient(spacing))
+                VectorField<X_RES, Y_RES, Z_RES>(
+                    velocity * VectorField<X_RES, Y_RES, Z_RES>(velocity.getX().gradient(spacing)),
+                    velocity * VectorField<X_RES, Y_RES, Z_RES>(velocity.getY().gradient(spacing)),
+                    velocity * VectorField<X_RES, Y_RES, Z_RES>(velocity.getZ().gradient(spacing))
                 ) * -1
             )
         ) * dt;
         t += dt;
-        iterations++;
         velocity.toFile("output/"+std::to_string(iterations) + "output");
-    } while (iterations < 1000);
+    }
 }

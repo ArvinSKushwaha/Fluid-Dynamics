@@ -483,6 +483,11 @@ public:
 
     ScalarField(){};
 
+    ScalarField<a, b, c> (float *field)
+    {
+        data = field;
+    }
+
     int index(uint i, uint j, uint k)
     {
         return k + j * b + i * a * b;
@@ -690,9 +695,9 @@ public:
         return *this;
     }
 
-    std::array<std::array<std::array<Vec3D, c>, b>, a> gradient(Vec3D spacing)
+    Vec3D *gradient(Vec3D spacing)
     {
-        std::array<std::array<std::array<Vec3D, c>, b>, a> Gradiented;
+        Vec3D *Gradiented = (Vec3D*) malloc(sizeof(Vec3D) * matrixSize[0] * matrixSize[1] * matrixSize[2]);
         float dFdx, dFdy, dFdz;
         for (int i = 0; i < matrixSize[0]; ++i)
         {
@@ -730,7 +735,7 @@ public:
                     {
                         dFdy = (operator()(i, j, k) - operator()(i, j - 1, k)) / (spacing.y);
                     }
-                    Gradiented[i][j][k] = Vec3D(dFdx, dFdy, dFdz);
+                    Gradiented[index(i, j, k)] = Vec3D(dFdx, dFdy, dFdz);
                 }
             }
         }
@@ -778,6 +783,25 @@ public:
     Vec3D *data = (Vec3D *)malloc(sizeof(Vec3D) * a * b * c);
 
     VectorField(){};
+
+    VectorField<a, b, c> (Vec3D *field)
+    {
+        data = field;
+    }
+
+    VectorField<a, b, c> (ScalarField<a, b, c> A, ScalarField<a, b, c> B, ScalarField<a, b, c> C)
+    {
+        for(int i = 0; i < matrixSize[0]; ++i)
+        {
+            for(int j = 0; j < matrixSize[1]; ++j)
+            {
+                for(int k = 0; k < matrixSize[2]; ++k)
+                {
+                    operator()(i, j, k, Vec3D(A(i, j, k), B(i, j, k), C(i, j, k)));
+                }
+            }
+        }
+    }
 
     int index(uint i, uint j, uint k)
     {
@@ -982,6 +1006,22 @@ public:
         return *this;
     }
 
+    ScalarField<a, b, c> operator*(Vec3D A)
+    {
+        ScalarField<a, b, c> N;
+        for (int i = 0; i < matrixSize[0]; ++i)
+        {
+            for (int j = 0; j < matrixSize[1]; ++j)
+            {
+                for (int k = 0; k < matrixSize[2]; ++k)
+                {
+                    N(i, j, k, operator()(i, j, k).dot(A(i, j, k)));
+                }
+            }
+        }
+        return N;
+    }
+
     VectorField<a, b, c> operator<<(Vec3D dataIn[a][b][c])
     {
         for (int i = 0; i < matrixSize[0]; ++i)
@@ -1163,10 +1203,7 @@ public:
 
     VectorField<a, b, c> laplacian(Vec3D spacing)
     {
-        VectorField<a, b, c> N;
-        ScalarField<a, b, c> A[3] = {getX().gradient(spacing).divergence(spacing), getY().gradient(spacing).divergence(spacing), getZ().gradient(spacing).divergence(spacing)};
-        N << A;
-        return N;
+        return VectorField<a, b, c>(VectorField<a, b, c>(getX().gradient(spacing)).divergence(spacing), VectorField<a, b, c>(getY().gradient(spacing)).divergence(spacing), VectorField<a, b, c>(getZ().gradient(spacing)).divergence(spacing));
     }
 
     void toFile(std::string filename)
@@ -1184,7 +1221,6 @@ public:
                 {
                     for (int k = 0; k < matrixSize[2]; ++k)
                     {
-                        std::cout << i << " " << j << " " << k << " " << operator()(i, j, k).sstr() << "\n";
                         myfile << i << " " << j << " " << k << " " << operator()(i, j, k).sstr() << "\n";
                     }
                 }
@@ -1209,6 +1245,11 @@ public:
     float *data = (float *)malloc(sizeof(float) * a * b);
 
     ScalarPlane(){};
+
+    ScalarPlane<a, b> (float *field)
+    {
+        data = field;
+    }
 
     int index(uint i, uint j)
     {
@@ -1454,14 +1495,7 @@ public:
 
     VectorPlane<a, b> (Vec2D *field)
     {
-        VectorPlane<a, b> N;
-        for(int i = 0; i < matrixSize[0]; ++i)
-        {
-            for(int j = 0; j < matrixSize[1]; ++j)
-            {
-                operator()(i, j, field[index(i, j)]);
-            }
-        }
+        data = field;
     }
 
     VectorPlane<a, b> (ScalarPlane<a, b> A, ScalarPlane<a, b> B)
@@ -1632,6 +1666,19 @@ public:
         return *this;
     }
 
+    ScalarPlane<a, b> operator*(Vec2D A)
+    {
+        ScalarPlane<a, b> N;
+        for (int i = 0; i < matrixSize[0]; ++i)
+        {
+            for (int j = 0; j < matrixSize[1]; j++)
+            {
+                N(i, j, operator()(i, j).dot(A(i, j)));
+            }
+        }
+        return N;
+    }
+
     VectorPlane<a, b> operator<<(Vec2D dataIn[a][b])
     {
         for (int i = 0; i < matrixSize[0]; ++i)
@@ -1730,10 +1777,7 @@ public:
 
     VectorPlane<a, b> laplacian(Vec2D spacing)
     {
-        VectorPlane<a, b> N;
-        ScalarPlane<a, b> A[2] = {VectorPlane<a, b>(getX().gradient(spacing)).divergence(spacing), VectorPlane<a, b>(getY().gradient(spacing)).divergence(spacing)};
-        N << A;
-        return N;
+        return VectorPlane<a, b>(VectorPlane<a, b>(getX().gradient(spacing)).divergence(spacing), VectorPlane<a, b>(getY().gradient(spacing)).divergence(spacing));
     }
 
     void toFile(std::string filename)

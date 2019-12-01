@@ -483,6 +483,11 @@ public:
 
     ScalarField(){};
 
+    ScalarField<a, b, c> (double *field)
+    {
+        data = field;
+    }
+
     int index(uint i, uint j, uint k)
     {
         return k + j * b + i * a * b;
@@ -779,6 +784,25 @@ public:
 
     VectorField(){};
 
+    VectorField<a, b, c> (Vec3D *field)
+    {
+        data = field;
+    }
+
+    VectorField<a, b, c> (ScalarField<a, b, c> A, ScalarField<a, b, c> B, ScalarField<a, b, c> C)
+    {
+        for(int i = 0; i < matrixSize[0]; ++i)
+        {
+            for(int j = 0; j < matrixSize[1]; ++j)
+            {
+                for(int k = 0; k < matrixSize[2]; ++k)
+                {
+                    operator()(i, j, k, Vec3D(A(i, j, k), B(i, j, k), C(i, j, k)));
+                }
+            }
+        }
+    }
+
     int index(uint i, uint j, uint k)
     {
         return k + j * b + i * a * b;
@@ -980,6 +1004,22 @@ public:
             }
         }
         return *this;
+    }
+
+    ScalarField<a, b, c> operator*(Vec3D A)
+    {
+        ScalarField<a, b, c> N;
+        for (int i = 0; i < matrixSize[0]; ++i)
+        {
+            for (int j = 0; j < matrixSize[1]; ++j)
+            {
+                for (int k = 0; k < matrixSize[2]; ++k)
+                {
+                    N(i, j, k, operator()(i, j, k).dot(A(i, j, k)));
+                }
+            }
+        }
+        return N;
     }
 
     VectorField<a, b, c> operator<<(Vec3D dataIn[a][b][c])
@@ -1209,6 +1249,11 @@ public:
     double *data = (double *)malloc(sizeof(double) * a * b);
 
     ScalarPlane(){};
+
+    ScalarPlane<a, b> (double *field)
+    {
+        data = field;
+    }
 
     int index(uint i, uint j)
     {
@@ -1454,14 +1499,7 @@ public:
 
     VectorPlane<a, b> (Vec2D *field)
     {
-        VectorPlane<a, b> N;
-        for(int i = 0; i < matrixSize[0]; ++i)
-        {
-            for(int j = 0; j < matrixSize[1]; ++j)
-            {
-                operator()(i, j, field[index(i, j)]);
-            }
-        }
+        data = field;
     }
 
     VectorPlane<a, b> (ScalarPlane<a, b> A, ScalarPlane<a, b> B)
@@ -1630,6 +1668,19 @@ public:
             }
         }
         return *this;
+    }
+
+    ScalarPlane<a, b> operator*(Vec2D A)
+    {
+        ScalarPlane<a, b> N;
+        for (int i = 0; i < matrixSize[0]; ++i)
+        {
+            for (int j = 0; j < matrixSize[1]; j++)
+            {
+                N(i, j, operator()(i, j).dot(A(i, j)));
+            }
+        }
+        return N;
     }
 
     VectorPlane<a, b> operator<<(Vec2D dataIn[a][b])
