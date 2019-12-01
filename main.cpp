@@ -1,9 +1,9 @@
 #include <iostream>
 #include "math_obj_f.hpp"
 
-#define X_RES 100
-#define Y_RES 100
-#define Z_RES 100
+#define X_RES 10
+#define Y_RES 10
+#define Z_RES 10
 #define RES_SIZE Vec3D(X_RES, Y_RES, Z_RES)
 #define ENV_SIZE Vec3D(1, 1, 1)
 

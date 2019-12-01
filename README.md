@@ -14,3 +14,4 @@ This repository will also contain a RCNN (Recurrent Convolutional Neural Network
 * math_obj_f.hpp: Same as math_obj.hpp except using floats instead of doubles.
 * main.cpp: The main C++ file containing the fluid simulation code
 * AI.py: Will contain the RCNN upon completion
+* process_data.py: Processes output files from main.cpp to NumPy matrices for Python
