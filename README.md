@@ -16,3 +16,4 @@ This repository will also contain a RCNN (Recurrent Convolutional Neural Network
 * AI.py: Will contain the RCNN upon completion
     * Contains "mathematically" - A model using a mathematical basis
     * Contains "encoder", "decoder", and "full_model" - The encoder, decoder, and full model for a variational autoencoder.
+* process_data.py: Processes output files from main.cpp to NumPy matrices for Python
