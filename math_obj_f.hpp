@@ -15,10 +15,10 @@
 #define PI M_PI                        // dimensionless
 #define LIGHT_SPEED 299792458.0        // m s^-1
 #define AVOGADRO 6.02214086e+23        // dimensionless
-#define E_CHARGE 1.602176634 * 1e-19   // s A
-#define M_PROTON 1.67262192369 * 1e-27 // kg
+#define E_CHARGE (1.602176634 * 1e-19)   // s A
+#define M_PROTON (1.67262192369 * 1e-27) // kg
 #define M_ELECTRON 9.10938356e-31      // kg
-#define MU_0 PI * 4e-7                 // m kg s^-2 A^-2
+#define MU_0 (PI * 4e-7)                 // m kg s^-2 A^-2
 #define EPSILON_0 8.85418782e-12       // m^-3 kg^-1 s^4 A^2
 #define k_B 1.38064852e-23             // m^2 kg s^-2 K^-1
 

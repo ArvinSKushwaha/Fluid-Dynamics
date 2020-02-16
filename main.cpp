@@ -32,6 +32,8 @@ int main()
     VectorField<X_RES, Y_RES, Z_RES> externalAcceleration;
     ScalarField<X_RES, Y_RES, Z_RES> pressure;
     ScalarField<X_RES, Y_RES, Z_RES> massDensity;
+
+    #pragma omp parallel for collapse(3) schedule(static, 4000)
     for (int i = 0; i < X_RES; ++i)
     {
         for (int j = 0; j < Y_RES; ++j)
@@ -46,6 +48,7 @@ int main()
         }
     }
     
+    #pragma omp parallel for schedule(static, 4000)
     for(int iterations = 0; iterations < 1000; iterations++)
     {
         std::cout << iterations << std::endl;
